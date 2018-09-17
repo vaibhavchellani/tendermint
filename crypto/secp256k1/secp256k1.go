@@ -46,7 +46,7 @@ func (privKey PrivKeySecp256k1) Bytes() []byte {
 func (privKey PrivKeySecp256k1) Sign(msg []byte) ([]byte, error) {
 	privateObject, err := ethCrypto.ToECDSA(privKey[:])
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return ethCrypto.Sign(ethCrypto.Keccak256(msg), privateObject)
@@ -136,12 +136,7 @@ func (pubKey PubKeySecp256k1) Bytes() []byte {
 
 func (pubKey PubKeySecp256k1) VerifyBytes(msg []byte, sig []byte) bool {
 	hash := ethCrypto.Keccak256(msg)
-	p, err := ethCrypto.Ecrecover(hash, sig)
-	if err != nil {
-		return false
-	}
-
-	return bytes.Equal(pubKey[:], p[:])
+	return ethCrypto.VerifySignature(pubKey[:], hash, sig[:64])
 }
 
 func (pubKey PubKeySecp256k1) String() string {
