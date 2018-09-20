@@ -31,6 +31,7 @@ type CanonicalJSONProposal struct {
 	POLRound         int                        `json:"pol_round"`
 	Round            int                        `json:"round"`
 	Timestamp        string                     `json:"timestamp"`
+	Data             []byte                     `json:"data"`
 }
 
 type CanonicalJSONVote struct {
@@ -41,6 +42,7 @@ type CanonicalJSONVote struct {
 	Round     int                  `json:"round"`
 	Timestamp string               `json:"timestamp"`
 	VoteType  byte                 `json:"type"`
+	Data      []byte               `json:"data"`
 }
 
 type CanonicalJSONHeartbeat struct {
@@ -80,6 +82,7 @@ func CanonicalProposal(chainID string, proposal *Proposal) CanonicalJSONProposal
 		POLBlockID:       CanonicalBlockID(proposal.POLBlockID),
 		POLRound:         proposal.POLRound,
 		Round:            proposal.Round,
+		Data:             proposal.Data,
 	}
 }
 
@@ -92,6 +95,7 @@ func CanonicalVote(chainID string, vote *Vote) CanonicalJSONVote {
 		Round:     vote.Round,
 		Timestamp: CanonicalTime(vote.Timestamp),
 		VoteType:  vote.Type,
+		Data:      vote.Data,
 	}
 }
 
