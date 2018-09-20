@@ -66,22 +66,23 @@ func (ti *timeoutInfo) String() string {
 type MsgType int
 
 const (
-	Vote MsgType = iota
-	BlockPart
+	MsgTypeUnknown MsgType = iota
+	MsgTypeVote
+	MsgTypeBlockPart
 )
 
 // msgs sent to reactor to compute statistics on peer activity
 type peerInfo struct {
-	MsgType MsgType `json:"msg_type"`
-	PeerID  p2p.ID  `json:"peer_key"`
+	MsgType MsgType
+	PeerID  p2p.ID
 }
 
 func (mt MsgType) String() string {
 	switch mt {
-	case Vote:
-		return "Vote"
-	case BlockPart:
-		return "BlockPart"
+	case MsgTypeVote:
+		return "MsgTypeVote"
+	case MsgTypeBlockPart:
+		return "MsgTypeBlockPart"
 	default:
 		return "MsgTypeUnknown" // Cannot panic.
 	}
@@ -670,7 +671,7 @@ func (cs *ConsensusState) handleMsg(mi msgInfo) {
 		// if the proposal is complete, we'll enterPrevote or tryFinalizeCommit
 		added, err := cs.addProposalBlockPart(msg, peerID)
 		if added {
-			cs.statsMsgQueue <- peerInfo{BlockPart, peerID}
+			cs.statsMsgQueue <- peerInfo{MsgTypeBlockPart, peerID}
 		}
 
 		if err != nil && msg.Round != cs.Round {
@@ -682,7 +683,7 @@ func (cs *ConsensusState) handleMsg(mi msgInfo) {
 		// if the vote gives us a 2/3-any or 2/3-one, we transition
 		added, err := cs.tryAddVote(msg.Vote, peerID)
 		if added {
-			cs.statsMsgQueue <- peerInfo{Vote, peerID}
+			cs.statsMsgQueue <- peerInfo{MsgTypeVote, peerID}
 		}
 
 		if err == ErrAddingVote {
@@ -1524,8 +1525,8 @@ func (cs *ConsensusState) addProposalBlockPart(msg *BlockPartMessage, peerID p2p
 }
 
 // Attempt to add the vote. if its a duplicate signature, dupeout the validator
-func (cs *ConsensusState) tryAddVote(vote *types.Vote, peerID p2p.ID) (added bool, err error) {
-	added, err = cs.addVote(vote, peerID)
+func (cs *ConsensusState) tryAddVote(vote *types.Vote, peerID p2p.ID) (bool, error) {
+	added, err := cs.addVote(vote, peerID)
 	if err != nil {
 		// If the vote height is off, we'll just ignore it,
 		// But if it's a conflicting sig, add it to the cs.evpool.

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
 	cstypes "github.com/tendermint/tendermint/consensus/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
@@ -1101,7 +1102,7 @@ func TestStateOutputsBlockPartsStats(t *testing.T) {
 	cs.handleMsg(msgInfo{msg, peer.ID()})
 
 	statsMessage := <-cs.statsMsgQueue
-	require.Equal(t, BlockPart, statsMessage.MsgType, "")
+	require.Equal(t, MsgTypeBlockPart, statsMessage.MsgType, "")
 	require.Equal(t, peer.ID(), statsMessage.PeerID, "")
 
 	// sending the same part from different peer
@@ -1122,7 +1123,7 @@ func TestStateOutputsBlockPartsStats(t *testing.T) {
 	select {
 	case <-cs.statsMsgQueue:
 		t.Errorf("Should not output stats message after receiving the known block part!")
-	case <-time.After(1 * time.Second):
+	case <-time.After(50 * time.Millisecond):
 	}
 
 }
@@ -1137,7 +1138,7 @@ func TestStateOutputVoteStats(t *testing.T) {
 	cs.handleMsg(msgInfo{&VoteMessage{vote}, peer.ID()})
 
 	statsMessage := <-cs.statsMsgQueue
-	require.Equal(t, Vote, statsMessage.MsgType, "")
+	require.Equal(t, MsgTypeVote, statsMessage.MsgType, "")
 	require.Equal(t, peer.ID(), statsMessage.PeerID, "")
 
 	// sending the same part from different peer
@@ -1152,7 +1153,7 @@ func TestStateOutputVoteStats(t *testing.T) {
 	select {
 	case <-cs.statsMsgQueue:
 		t.Errorf("Should not output stats message after receiving the known vote or vote from bigger height")
-	case <-time.After(1 * time.Second):
+	case <-time.After(50 * time.Millisecond):
 	}
 
 }

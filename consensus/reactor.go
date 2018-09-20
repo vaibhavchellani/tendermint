@@ -809,11 +809,11 @@ func (conR *ConsensusReactor) peerStatsRoutine() {
 				// Get peer state
 				ps := peer.Get(types.PeerStateKey).(*PeerState)
 				switch msg.MsgType {
-				case Vote:
+				case MsgTypeVote:
 					if numVotes := ps.RecordVote(); numVotes%votesToContributeToBecomeGoodPeer == 0 {
 						conR.Switch.MarkPeerAsGood(peer)
 					}
-				case BlockPart:
+				case MsgTypeBlockPart:
 					if numParts := ps.RecordBlockPart(); numParts%blocksToContributeToBecomeGoodPeer == 0 {
 						conR.Switch.MarkPeerAsGood(peer)
 					}
@@ -1109,7 +1109,8 @@ func (ps *PeerState) ensureVoteBitArrays(height int64, numValidators int) {
 	}
 }
 
-// RecordVote increments internal votes related statistics for this peer. It returns the total number of added votes.
+// RecordVote increments internal votes related statistics for this peer.
+// It returns the total number of added votes.
 func (ps *PeerState) RecordVote() int {
 	ps.mtx.Lock()
 	defer ps.mtx.Unlock()
