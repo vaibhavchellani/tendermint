@@ -1297,10 +1297,10 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 		// but may differ from the LastCommit included in the next block
 		precommits := cs.Votes.Precommits(cs.CommitRound)
 		seenCommit := precommits.MakeCommit()
-		precommitStrings := make([]string, len(seenCommit.Precommits))
-		for i, precommit := range seenCommit.Precommits {
-			precommitStrings[i] = precommit.String()
-			cs.Logger.Info(fmt.Sprintf("[peppermint] seen commit. Height: %v, Round: %v, Sig: %v", precommit.Height, precommit.Round, hex.EncodeToString(precommit.Signature)))
+		for _, precommit := range seenCommit.Precommits {
+			if precommit != nil {
+				cs.Logger.Info(fmt.Sprintf("[peppermint] Committed vote:: Height: %v, Round: %v, VoteData %v, Sig %v", precommit.Height, precommit.Round, hex.EncodeToString(precommit.SignBytes(cs.state.ChainID)), hex.EncodeToString(precommit.Signature)))
+			}
 		}
 		cs.blockStore.SaveBlock(block, blockParts, seenCommit)
 	} else {
