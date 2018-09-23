@@ -2,6 +2,7 @@ package consensus
 
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"reflect"
@@ -785,6 +786,7 @@ func (cs *ConsensusState) needProofBlock(height int64) bool {
 	}
 
 	lastBlockMeta := cs.blockStore.LoadBlockMeta(height - 1)
+	cs.Logger.Info("[STATE] app hash", "apphash", hex.EncodeToString(cs.state.AppHash), "lastBlockMeta", hex.EncodeToString(lastBlockMeta.Header.AppHash))
 	return !bytes.Equal(cs.state.AppHash, lastBlockMeta.Header.AppHash)
 }
 
@@ -889,6 +891,11 @@ func (cs *ConsensusState) defaultDecideProposal(height int64, round int) {
 	// Make proposal
 	polRound, polBlockID := cs.Votes.POLInfo()
 	proposal := types.NewProposal(height, round, blockParts.Header(), polRound, polBlockID)
+
+	proposal.Data = block.DataHash // [peppermint] add data hash to proposal
+	d := proposal.SignBytes(cs.state.ChainID)
+	cs.Logger.Info("[peppermint] New proposal", "signBytes", d)
+
 	if err := cs.privValidator.SignProposal(cs.state.ChainID, proposal); err == nil {
 		// Set fields
 		/*  fields set by setProposal and addBlockPart
@@ -955,7 +962,6 @@ func (cs *ConsensusState) createProposalBlock() (block *types.Block, blockParts 
 	txs := cs.mempool.ReapMaxBytes(maxDataBytes(maxBytes, cs.state.Validators.Size(), len(evidence)))
 	proposerAddr := cs.privValidator.GetAddress()
 	block, parts := cs.state.MakeBlock(cs.Height, txs, commit, evidence, proposerAddr)
-
 	return block, parts
 }
 
@@ -1281,6 +1287,7 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 	cs.Logger.Info(fmt.Sprintf("Finalizing commit of block with %d txs", block.NumTxs),
 		"height", block.Height, "hash", block.Hash(), "root", block.AppHash)
 	cs.Logger.Info(fmt.Sprintf("%v", block))
+	cs.Logger.Info(fmt.Sprintf("[peppermint] precommits round %v %v", cs.Round, cs.Votes.Precommits(cs.Round)))
 
 	fail.Fail() // XXX
 
@@ -1290,6 +1297,11 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 		// but may differ from the LastCommit included in the next block
 		precommits := cs.Votes.Precommits(cs.CommitRound)
 		seenCommit := precommits.MakeCommit()
+		precommitStrings := make([]string, len(seenCommit.Precommits))
+		for i, precommit := range seenCommit.Precommits {
+			precommitStrings[i] = precommit.String()
+			cs.Logger.Info(fmt.Sprintf("[peppermint] seen commit. Height: %v, Round: %v, Sig: %v", precommit.Height, precommit.Round, hex.EncodeToString(precommit.Signature)))
+		}
 		cs.blockStore.SaveBlock(block, blockParts, seenCommit)
 	} else {
 		// Happens during replay if we already saved the block but didn't commit
@@ -1729,4 +1741,13 @@ func CompareHRS(h1 int64, r1 int, s1 cstypes.RoundStepType, h2 int64, r2 int, s2
 		return 1
 	}
 	return 0
+}
+
+func convertToHexBytes(src []byte) []byte {
+	dst := make([]byte, hex.DecodedLen(len(src)))
+	_, err := hex.Decode(dst, src)
+	if err != nil {
+		return nil
+	}
+	return dst
 }
