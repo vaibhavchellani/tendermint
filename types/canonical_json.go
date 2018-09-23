@@ -31,7 +31,7 @@ type CanonicalJSONProposal struct {
 	POLRound         int                        `json:"pol_round"`
 	Round            int                        `json:"round"`
 	Timestamp        string                     `json:"timestamp"`
-	Data             []byte                     `json:"data"`
+	Data             cmn.HexBytes               `json:"data"`
 }
 
 type CanonicalJSONVote struct {
@@ -42,7 +42,7 @@ type CanonicalJSONVote struct {
 	Round     int                  `json:"round"`
 	Timestamp string               `json:"timestamp"`
 	VoteType  byte                 `json:"type"`
-	Data      []byte               `json:"data"`
+	Data      cmn.HexBytes         `json:"data"`
 }
 
 type CanonicalJSONHeartbeat struct {
