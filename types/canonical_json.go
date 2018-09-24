@@ -45,6 +45,15 @@ type CanonicalJSONVote struct {
 	Data      cmn.HexBytes         `json:"data"`
 }
 
+type CanonicalRLPVote struct {
+	ChainID  string
+	Type     string
+	Height   uint
+	Round    uint
+	Data     []byte
+	VoteType []byte
+}
+
 type CanonicalJSONHeartbeat struct {
 	ChainID          string  `json:"@chain_id"`
 	Type             string  `json:"@type"`
@@ -86,16 +95,25 @@ func CanonicalProposal(chainID string, proposal *Proposal) CanonicalJSONProposal
 	}
 }
 
-func CanonicalVote(chainID string, vote *Vote) CanonicalJSONVote {
-	return CanonicalJSONVote{
-		ChainID:   chainID,
-		Type:      "vote",
-		BlockID:   CanonicalBlockID(vote.BlockID),
-		Height:    vote.Height,
-		Round:     vote.Round,
-		Timestamp: CanonicalTime(vote.Timestamp),
-		VoteType:  vote.Type,
-		Data:      vote.Data,
+func CanonicalVote(chainID string, vote *Vote) CanonicalRLPVote {
+	// return CanonicalJSONVote{
+	// 	ChainID:   chainID,
+	// 	Type:      "vote",
+	// 	BlockID:   CanonicalBlockID(vote.BlockID),
+	// 	Height:    vote.Height,
+	// 	Round:     vote.Round,
+	// 	Timestamp: CanonicalTime(vote.Timestamp),
+	// 	VoteType:  vote.Type,
+	// 	Data:      vote.Data,
+	// }
+
+	return CanonicalRLPVote{
+		ChainID:  chainID,
+		Type:     "vote",
+		Height:   uint(vote.Height),
+		Round:    uint(vote.Round),
+		Data:     vote.Data,
+		VoteType: []byte{vote.Type},
 	}
 }
 

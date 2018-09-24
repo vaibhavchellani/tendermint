@@ -219,9 +219,9 @@ func (pv *FilePV) signVote(chainID string, vote *types.Vote) error {
 	if sameHRS {
 		if bytes.Equal(signBytes, pv.LastSignBytes) {
 			vote.Signature = pv.LastSignature
-		} else if timestamp, ok := checkVotesOnlyDifferByTimestamp(pv.LastSignBytes, signBytes); ok {
-			vote.Timestamp = timestamp
-			vote.Signature = pv.LastSignature
+			// } else if timestamp, ok := checkVotesOnlyDifferByTimestamp(pv.LastSignBytes, signBytes); ok {
+			// 	vote.Timestamp = timestamp
+			// 	vote.Signature = pv.LastSignature
 		} else {
 			err = fmt.Errorf("Conflicting data")
 		}
@@ -311,29 +311,29 @@ func (pv *FilePV) String() string {
 
 // returns the timestamp from the lastSignBytes.
 // returns true if the only difference in the votes is their timestamp.
-func checkVotesOnlyDifferByTimestamp(lastSignBytes, newSignBytes []byte) (time.Time, bool) {
-	var lastVote, newVote types.CanonicalJSONVote
-	if err := cdc.UnmarshalJSON(lastSignBytes, &lastVote); err != nil {
-		panic(fmt.Sprintf("LastSignBytes cannot be unmarshalled into vote: %v", err))
-	}
-	if err := cdc.UnmarshalJSON(newSignBytes, &newVote); err != nil {
-		panic(fmt.Sprintf("signBytes cannot be unmarshalled into vote: %v", err))
-	}
+// func checkVotesOnlyDifferByTimestamp(lastSignBytes, newSignBytes []byte) (time.Time, bool) {
+// 	var lastVote, newVote types.CanonicalJSONVote
+// 	if err := cdc.UnmarshalJSON(lastSignBytes, &lastVote); err != nil {
+// 		panic(fmt.Sprintf("LastSignBytes cannot be unmarshalled into vote: %v", err))
+// 	}
+// 	if err := cdc.UnmarshalJSON(newSignBytes, &newVote); err != nil {
+// 		panic(fmt.Sprintf("signBytes cannot be unmarshalled into vote: %v", err))
+// 	}
 
-	lastTime, err := time.Parse(types.TimeFormat, lastVote.Timestamp)
-	if err != nil {
-		panic(err)
-	}
+// 	lastTime, err := time.Parse(types.TimeFormat, lastVote.Timestamp)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	// set the times to the same value and check equality
-	now := types.CanonicalTime(tmtime.Now())
-	lastVote.Timestamp = now
-	newVote.Timestamp = now
-	lastVoteBytes, _ := cdc.MarshalJSON(lastVote)
-	newVoteBytes, _ := cdc.MarshalJSON(newVote)
+// 	// set the times to the same value and check equality
+// 	now := types.CanonicalTime(tmtime.Now())
+// 	lastVote.Timestamp = now
+// 	newVote.Timestamp = now
+// 	lastVoteBytes, _ := cdc.MarshalJSON(lastVote)
+// 	newVoteBytes, _ := cdc.MarshalJSON(newVote)
 
-	return lastTime, bytes.Equal(newVoteBytes, lastVoteBytes)
-}
+// 	return lastTime, bytes.Equal(newVoteBytes, lastVoteBytes)
+// }
 
 // returns the timestamp from the lastSignBytes.
 // returns true if the only difference in the proposals is their timestamp
