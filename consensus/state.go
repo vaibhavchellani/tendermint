@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	fail "github.com/ebuchman/fail-test"
+	"github.com/ebuchman/fail-test"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtime "github.com/tendermint/tendermint/types/time"
@@ -1300,7 +1300,10 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 		precommitStrings := make([]string, len(seenCommit.Precommits))
 		for i, precommit := range seenCommit.Precommits {
 			precommitStrings[i] = precommit.String()
-			cs.Logger.Info(fmt.Sprintf("[peppermint] seen commit. Height: %v, Round: %v, Sig: %v", precommit.Height, precommit.Round, hex.EncodeToString(precommit.Signature)))
+			cs.Logger.Info(fmt.Sprintf("[peppermint] seen commit. Height: %v, Round: %v, Sig: %v ", precommit.Height, precommit.Round, hex.EncodeToString(precommit.Signature)))
+			if hex.EncodeToString(precommit.Data)!=""{
+				cs.Logger.Info(fmt.Sprintf("Data found in vote ! %v",hex.EncodeToString(precommit.Data)))
+			}
 		}
 		cs.blockStore.SaveBlock(block, blockParts, seenCommit)
 	} else {

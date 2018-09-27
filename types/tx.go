@@ -18,6 +18,7 @@ type Tx []byte
 
 // Hash computes the TMHASH hash of the wire encoded transaction.
 func (tx Tx) Hash() []byte {
+	fmt.Sprintf("Tx{%X} xoxo", []byte(tx))
 	return tmhash.Sum(tx)
 }
 
@@ -25,6 +26,7 @@ func (tx Tx) Hash() []byte {
 func (tx Tx) String() string {
 	return fmt.Sprintf("Tx{%X}", []byte(tx))
 }
+
 
 // Txs is a slice of Tx.
 type Txs []Tx
