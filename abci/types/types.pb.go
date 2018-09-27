@@ -3,26 +3,29 @@
 
 package types
 
-import proto "github.com/gogo/protobuf/proto"
+import "github.com/gogo/protobuf/proto"
 import golang_proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import "fmt"
+import "math"
 import _ "github.com/gogo/protobuf/gogoproto"
 import _ "github.com/golang/protobuf/ptypes/timestamp"
-import common "github.com/tendermint/tendermint/libs/common"
+import "github.com/tendermint/tendermint/libs/common"
 
-import time "time"
 
-import bytes "bytes"
+import "time"
+
+import "bytes"
 
 import (
-	context "golang.org/x/net/context"
-	grpc "google.golang.org/grpc"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 import github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 
-import io "io"
+import (
+	"io"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -2585,6 +2588,19 @@ func (m *LastCommitInfo) GetVotes() []VoteInfo {
 	}
 	return nil
 }
+type Address = common.HexBytes
+
+type Vote struct {
+	ValidatorAddress Address   `json:"validator_address"`
+	ValidatorIndex   int       `json:"validator_index"`
+	Height           int64     `json:"height"`
+	Round            int       `json:"round"`
+	Timestamp        time.Time `json:"timestamp"`
+	Type             byte      `json:"type"`
+	BlockID          BlockID   `json:"block_id"` // zero if vote is nil.
+	Data             []byte    `json:"data"`     // extra data
+	Signature        []byte    `json:"signature"`
+}
 
 type Header struct {
 	// basic block info
@@ -2604,9 +2620,10 @@ type Header struct {
 	ConsensusHash      []byte `protobuf:"bytes,11,opt,name=consensus_hash,json=consensusHash,proto3" json:"consensus_hash,omitempty"`
 	AppHash            []byte `protobuf:"bytes,12,opt,name=app_hash,json=appHash,proto3" json:"app_hash,omitempty"`
 	LastResultsHash    []byte `protobuf:"bytes,13,opt,name=last_results_hash,json=lastResultsHash,proto3" json:"last_results_hash,omitempty"`
-	// consensus info
-	EvidenceHash         []byte   `protobuf:"bytes,14,opt,name=evidence_hash,json=evidenceHash,proto3" json:"evidence_hash,omitempty"`
-	ProposerAddress      []byte   `protobuf:"bytes,15,opt,name=proposer_address,json=proposerAddress,proto3" json:"proposer_address,omitempty"`
+	Votes				[]*Vote `protobuf:"bytes,14,opt,name=votes,json=votes,proto3" json:"votes,omitempty"`
+	// consensus infos
+	EvidenceHash         []byte   `protobuf:"bytes,15,opt,name=evidence_hash,json=evidenceHash,proto3" json:"evidence_hash,omitempty"`
+	ProposerAddress      []byte   `protobuf:"bytes,16,opt,name=proposer_address,json=proposerAddress,proto3" json:"proposer_address,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

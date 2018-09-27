@@ -1286,8 +1286,6 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 
 	cs.Logger.Info(fmt.Sprintf("Finalizing commit of block with %d txs", block.NumTxs),
 		"height", block.Height, "hash", block.Hash(), "root", block.AppHash)
-	cs.Logger.Info(fmt.Sprintf("%v", block))
-	cs.Logger.Info(fmt.Sprintf("[peppermint] precommits round %v %v", cs.Round, cs.Votes.Precommits(cs.Round)))
 
 	fail.Fail() // XXX
 
@@ -1300,7 +1298,8 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 		precommitStrings := make([]string, len(seenCommit.Precommits))
 		for i, precommit := range seenCommit.Precommits {
 			precommitStrings[i] = precommit.String()
-			cs.Logger.Info(fmt.Sprintf("[peppermint] seen commit. Height: %v, Round: %v, Sig: %v ", precommit.Height, precommit.Round, hex.EncodeToString(precommit.Signature)))
+			block.Header.Votes = append(block.Header.Votes,precommit)
+			cs.Logger.Info(fmt.Sprintf("[peppermint] seen commit. Height: %v, Round: %v, Sig: %v", precommit.Height, precommit.Round, hex.EncodeToString(precommit.Signature)))
 			if hex.EncodeToString(precommit.Data)!=""{
 				cs.Logger.Info(fmt.Sprintf("Data found in vote ! %v",hex.EncodeToString(precommit.Data)))
 			}
@@ -1310,6 +1309,10 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 		// Happens during replay if we already saved the block but didn't commit
 		cs.Logger.Info("Calling finalizeCommit on already stored block", "height", block.Height)
 	}
+
+	cs.Logger.Info(fmt.Sprintf("%v", block))
+	cs.Logger.Info(fmt.Sprintf("[peppermint] precommits round %v %v", cs.Round, cs.Votes.Precommits(cs.Round)))
+
 
 	fail.Fail() // XXX
 

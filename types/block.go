@@ -233,6 +233,7 @@ type Header struct {
 	// consensus info
 	EvidenceHash    cmn.HexBytes `json:"evidence_hash"`    // evidence included in the block
 	ProposerAddress Address      `json:"proposer_address"` // original proposer of the block
+	Votes			[]*Vote	     `json:"votes"`
 }
 
 // Hash returns the hash of the header.
@@ -243,6 +244,7 @@ func (h *Header) Hash() cmn.HexBytes {
 	if h == nil || len(h.ValidatorsHash) == 0 {
 		return nil
 	}
+	//todo maybe add votes here /maybe not
 	return merkle.SimpleHashFromMap(map[string]merkle.Hasher{
 		"ChainID":        aminoHasher(h.ChainID),
 		"Height":         aminoHasher(h.Height),
@@ -259,6 +261,7 @@ func (h *Header) Hash() cmn.HexBytes {
 		"Results":        aminoHasher(h.LastResultsHash),
 		"Evidence":       aminoHasher(h.EvidenceHash),
 		"Proposer":       aminoHasher(h.ProposerAddress),
+
 	})
 }
 
@@ -276,6 +279,7 @@ func (h *Header) StringIndented(indent string) string {
 %s  LastBlockID:    %v
 %s  LastCommit:     %v
 %s  Data:           %v
+%s  Votes: 			%v
 %s  Validators:     %v
 %s  NextValidators: %v
 %s  App:            %v
@@ -292,6 +296,7 @@ func (h *Header) StringIndented(indent string) string {
 		indent, h.LastBlockID,
 		indent, h.LastCommitHash,
 		indent, h.DataHash,
+		indent, h.Votes,
 		indent, h.ValidatorsHash,
 		indent, h.NextValidatorsHash,
 		indent, h.AppHash,
@@ -300,6 +305,7 @@ func (h *Header) StringIndented(indent string) string {
 		indent, h.EvidenceHash,
 		indent, h.ProposerAddress,
 		indent, h.Hash())
+
 }
 
 //-------------------------------------
