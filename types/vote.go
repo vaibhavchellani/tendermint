@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ethereum/go-ethereum/rlp"
 	crypto "github.com/tendermint/tendermint/crypto"
 	cmn "github.com/tendermint/tendermint/libs/common"
 )
@@ -78,7 +79,8 @@ type Vote struct {
 }
 
 func (vote *Vote) SignBytes(chainID string) []byte {
-	bz, err := cdc.MarshalJSON(CanonicalVote(chainID, vote))
+	// bz, err := cdc.MarshalJSON(CanonicalVote(chainID, vote))
+	bz, err := rlp.EncodeToBytes(CanonicalVote(chainID, vote))
 	if err != nil {
 		panic(err)
 	}
