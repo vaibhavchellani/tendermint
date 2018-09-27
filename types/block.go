@@ -233,7 +233,7 @@ type Header struct {
 	// consensus info
 	EvidenceHash    cmn.HexBytes `json:"evidence_hash"`    // evidence included in the block
 	ProposerAddress Address      `json:"proposer_address"` // original proposer of the block
-	Votes			[]*Vote	     `json:"votes"`
+	Votes           []*Vote      `json:"votes"`
 }
 
 // Hash returns the hash of the header.
@@ -261,7 +261,6 @@ func (h *Header) Hash() cmn.HexBytes {
 		"Results":        aminoHasher(h.LastResultsHash),
 		"Evidence":       aminoHasher(h.EvidenceHash),
 		"Proposer":       aminoHasher(h.ProposerAddress),
-
 	})
 }
 

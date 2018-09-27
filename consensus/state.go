@@ -1296,10 +1296,10 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 		precommits := cs.Votes.Precommits(cs.CommitRound)
 		seenCommit := precommits.MakeCommit()
 		for _, precommit := range seenCommit.Precommits {
-			block.Header.Votes = append(block.Header.Votes,precommit)
+			block.Header.Votes = append(block.Header.Votes, precommit)
 			cs.Logger.Info(fmt.Sprintf("[peppermint] seen commit. Height: %v, Round: %v, Sig: %v", precommit.Height, precommit.Round, hex.EncodeToString(precommit.Signature)))
-			if hex.EncodeToString(precommit.Data)!=""{
-				cs.Logger.Info(fmt.Sprintf("Data found in vote ! %v",hex.EncodeToString(precommit.Data)))
+			if hex.EncodeToString(precommit.Data) != "" {
+				cs.Logger.Info(fmt.Sprintf("Data found in vote ! %v", hex.EncodeToString(precommit.Data)))
 			}
 		}
 		cs.blockStore.SaveBlock(block, blockParts, seenCommit)
@@ -1310,7 +1310,6 @@ func (cs *ConsensusState) finalizeCommit(height int64) {
 
 	cs.Logger.Info(fmt.Sprintf("%v", block))
 	cs.Logger.Info(fmt.Sprintf("[peppermint] precommits round %v %v", cs.Round, cs.Votes.Precommits(cs.Round)))
-
 
 	fail.Fail() // XXX
 
